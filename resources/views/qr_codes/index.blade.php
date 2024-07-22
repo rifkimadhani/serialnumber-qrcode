@@ -11,9 +11,65 @@
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <style>
+        .navbar-fixed .nav-wrapper .brand-logo img {
+            height: 6vh;
+        }
+        .display img {
+            width: 30%;
+        }
+        nav .brand-logo img {
+            /* margin-left: 2vw;
+            margin-right: 2vw; */
+            padding-bottom: 1vh;
+            vertical-align: middle;
+        }
+        /* 24A69A */
+        .dataTables_length label {
+            color: #24A69A;
+        }
+
+        /* .dataTables_length .select-dropdown {
+            color: #24A69A;
+        } */
+        .dataTables_filter label {
+            color: #24A69A;
+        }
+
+        .dataTables_paginate .pagination .active a{
+            background-color: #24A69A;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
+{{-- <body class="grey lighten-5"> --}}
+<body style="background-color: #F5F3F5">
+    <div class="navbar-fixed">
+        <nav class="white">
+            <div class="nav-wrapper">
+                <div style="margin: 0 5vw 0 5vw">
+                    <a href="#!" class="brand-logo">
+                        <img src="{{asset('image/logo.png')}}" alt="">
+                    </a>
+                    <ul class="right hide-on-med-and-down">
+                        {{-- <li>
+                            <a href="{{route('profile.edit')}}" style="color: black;">Profile</a>
+                        </li> --}}
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                                @csrf
+                                <button type="submit" class="btn-small waves-effect waves-light hoverable" style="background-color: #0C3E7A; font-size: 11px;" name="action">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+
+    <div style="margin: 5vh 5vw">
         <section>
             @if(session('error'))
                 <div class="alert alert-danger">
@@ -27,122 +83,112 @@
             @endif
         </section>
 
-        <div class="center" style="margin-top: 10vh">
-            <div class="row center">
-                <div class="col s6 push-s3">
-                    <div class="card">
-                        <div class="card-content">
-                            <span class="card-title">QR Code Generator</span>
-                            <div class="divider"></div>
-                            <br>
-                            {{-- form --}}
-                            <form action="{{ route('upload') }}" method="POST" enctype="multipart/form-data" style="text-align: center">
-                                @csrf
-                                <div class="file-field input-field">
-                                    <div class="btn">
-                                        <span><i class="material-icons">cloud_upload</i></span>
-                                        <input type="file" name="file">
+        <div class="row">
+            <div class="col s4" style="padding-left: 0">
+
+                {{-- <div style="margin-bottom: -5px !important"> --}}
+                    {{-- <div class="col s12"> --}}
+                        <div class="card z-depth-2" style="border-radius: 7px;">
+                            <div class="card-content">
+                                <span class="card-title" style="font-size: 18px; margin-left: .5em; margin-bottom: 1.2em;"><strong>QR CODE GENERATOR</strong></span>
+                                <div class="divider"></div>
+                                <br>
+                                {{-- form --}}
+                                <form action="{{ route('upload') }}" method="POST" enctype="multipart/form-data" style="text-align: right">
+                                    @csrf
+                                    <div class="file-field input-field">
+                                        <div class="btn hoverable" style="background-color: #0C3E7A">
+                                            <span><i class="material-icons">cloud_upload</i></span>
+                                            <input type="file" name="file">
+                                        </div>
+                                        <div class="file-path-wrapper">
+                                            <input class="file-path validate" type="text" placeholder="Upload Serial Number Data [.xlsx]">
+                                        </div>
                                     </div>
-                                    <div class="file-path-wrapper">
-                                        <input class="file-path validate" type="text" placeholder="Upload .xlsx file">
-                                    </div>
-                                </div>
-                                <button class="btn waves-effect waves-light" type="submit" name="action">Generate
-                                    <i class="material-icons right">wallpaper</i>
-                                </button>
-                            </form>
+                                    <div style="margin-bottom: 1em"></div>
+                                    {{-- <div class="row" style="padding: 0 12px 0 12px"> --}}
+
+                                        <button class="btn waves-effect waves-light hoverable" style="margin-right: .5em; background-color: #0C3E7A" type="submit" name="action">Generate
+                                            {{-- <i class="material-icons right">wallpaper</i> --}}
+                                        </button>
+
+                                    {{-- </div> --}}
+                                </form>
+                            </div>
                         </div>
+                    {{-- </div> --}}
+                {{-- </div> --}}
+
+            </div>
+
+            <div class="col s8" style="padding-right: 0">
+                <div class="card z-depth-1" style="border-radius: 7px;">
+                    <div class="card-content">
+                        <div class="card-title">
+                            {{-- <div class="col s8 offset-s4" style="padding-right: .7em"> --}}
+                                <div class="row" style="display:flex; justify-content: flex-end; gap: .2em; margin-right: .3em">
+                                    <button id="downloadSelected" class="btn-small waves-effect waves-light hoverable disabled" style="background-color: #0C3E7A; font-size: 11px;">Download Selected
+                                        <i class="material-icons right">select_all</i>
+                                    </button>
+                                    <a href="{{ route('download-pdf') }}" class="waves-effect waves-light btn-small hoverable" style="background-color: #0C3E7A;font-size: 11px;">Download All
+                                        <i class="material-icons right">cloud_download</i>
+                                    </a>
+                                </div>
+                            {{-- </div> --}}
+                        </div>
+                        <div class="divider"></div>
+                        <section class="section" style="padding-bottom: 1px">
+                            {{-- Table --}}
+                            <div class="row">
+                                <div class="col s12 l12">
+                                    <table id="qrCodesTable" class="display highlight responsive-table nowrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Select</th>
+                                                <th>Serial Number</th>
+                                                <th>Model Number</th>
+                                                <th class="center">QR Code</th>
+                                                <th class="center">Date</th>
+                                                <th class="center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($qrCodes as $qrCode)
+                                                <tr>
+                                                    <td>
+                                                        <form action="">
+                                                            <label>
+                                                                <input type="checkbox" name="selectedQRCodes[]" value="{{ $qrCode->id }}" />
+                                                                <span></span>
+                                                            </label>
+                                                        </form>
+                                                    </td>
+                                                    <td>{{ $qrCode->serial_number }}</td>
+                                                    <td>{{ $qrCode->model_number }}</td>
+                                                    <td class="center">
+                                                        <img class="materialboxed" src="{{ asset($qrCode->qr_code) }}">
+                                                    </td>
+                                                    <td class="center">{{ $qrCode->updated_at }}</td>
+                                                    <td class="center">
+                                                        <form action="{{ route('delete') }}" method="POST">
+                                                            @csrf
+                                                            <input type="hidden" name="selectedQRCodes[]" value="{{ $qrCode->id }}">
+                                                            <button type="submit" class="waves-effect waves-teal btn-flat" style="color: #FF595E;">
+                                                                <i class="material-icons" style="font-size: 20px">delete</i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="divider"></div>
-
-        {{-- <section class="section" style="margin-top: 10vh;">
-            <h3 class="center">Serial Number QR Codes Generator</h3>
-            <br><br>
-            <form action="{{ route('upload') }}" method="POST" enctype="multipart/form-data" style="text-align: center">
-                @csrf
-                <div class="file-field input-field">
-                    <div class="btn">
-                        <span>File</span>
-                        <input type="file" name="file">
-                    </div>
-                    <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" placeholder="Upload .xlsx file">
-                    </div>
-                </div>
-                <button class="btn waves-effect waves-light" type="submit" name="action">Generate
-                    <i class="material-icons right">cloud_upload</i>
-                </button>
-            </form>
-            <br>
-        </section> --}}
-
-        <ul class="collapsible popout">
-            <li>
-                <div class="collapsible-header"><i class="material-icons">dashboard</i>Generated QR Code Data</div>
-                <div class="collapsible-body">
-                    <section class="section">
-                        <div class="row right">
-                            <button id="downloadSelected" class="btn-small waves-effect waves-light red lighten-1">Download Selected
-                                <i class="material-icons right">select_all</i>
-                            </button>
-                            <a href="{{ route('download-pdf') }}" class="waves-effect waves-light btn-small">Download All
-                                <i class="material-icons right">cloud_download</i>
-                            </a>
-                        </div>
-                        {{-- Table --}}
-                        <div class="row">
-                            <div class="col s12 l12">
-                                <table id="qrCodesTable" class="display" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Select</th>
-                                            <th>Serial Number</th>
-                                            <th>Model Number</th>
-                                            <th class="center">QR Code</th>
-                                            <th>Date</th>
-                                            <th class="center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($qrCodes as $qrCode)
-                                            <tr>
-                                                <td>
-                                                    <form action="">
-                                                        <label>
-                                                            <input type="checkbox" name="selectedQRCodes[]" value="{{ $qrCode->id }}" />
-                                                            <span></span>
-                                                        </label>
-                                                    </form>
-                                                </td>
-                                                <td>{{ $qrCode->serial_number }}</td>
-                                                <td>{{ $qrCode->model_number }}</td>
-                                                <td class="center">
-                                                    <img class="materialboxed" src="{{ asset($qrCode->qr_code) }}" width="50%">
-                                                </td>
-                                                <td>{{ $qrCode->updated_at }}</td>
-                                                <td class="center">
-                                                    <form action="{{ route('delete') }}" method="POST">
-                                                        @csrf
-                                                        <input type="hidden" name="selectedQRCodes[]" value="{{ $qrCode->id }}">
-                                                        <button type="submit" class="btn-small red lighten-1">
-                                                            <i class="material-icons">delete</i>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </li>
-        </ul>
 
     </div>
 
@@ -156,7 +202,7 @@
     {{-- <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script> --}}
 
 
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             var elems = document.querySelectorAll('.collapsible');
             var instances = M.Collapsible.init(elems, options);
@@ -167,7 +213,7 @@
         $(document).ready(function(){
             $('.collapsible').collapsible();
         });
-    </script>
+    </script> --}}
 
     <script>
         var $jscomp = $jscomp || {};
@@ -324,25 +370,42 @@
             return d;
         });
     </script>
-    <script>
-        document.querySelectorAll('.material-placeholder').forEach(function(element) {
-            element.style.cssText = "display: grid; place-items: center;";
-        });
-    </script>
 
     <script>
+        function updateButtonState() {
+            var selectedQRCodes = $('input[name="selectedQRCodes[]"]:checked').length;
+            if (selectedQRCodes === 0) {
+                $('#downloadSelected').addClass('disabled');
+            } else {
+                $('#downloadSelected').removeClass('disabled');
+            }
+        }
+
         $(document).ready(function() {
             $('.materialboxed').materialbox();
             document.querySelectorAll('.material-placeholder').forEach(function(element) {
-                element.style.cssText = "display: grid; place-items: center;";
+               element.style.cssText = "display: grid; place-items: center; width:fit-content;";
             });
 
-            $('#qrCodesTable').DataTable();
-            // new DataTable('#qrCodesTable', {
-            //     order: [[1, 'desc']],
-            //     scrollCollapse: false,
-            //     scrollY: '50vh'
-            // });
+            // $('#qrCodesTable').DataTable();
+
+            $('#qrCodesTable').DataTable({
+                columnDefs: [
+                    {width: '15%', targets: 3},
+                ],
+                dom: "<'row grey lighten-4'<'col s2'l><'col s10'f>><'row'<'col s12'tr>><'row'<'col s12 m12'i><'col s12 m12 center'p>>",
+                renderer: "materializecss",
+                order: [[2, 'asc']],
+                // scrollCollapse: true,
+                // scrollY: '40vh',
+            });
+
+            // download selcted data
+            updateButtonState();
+
+            $('input[name="selectedQRCodes[]"]').change(function() {
+                updateButtonState();
+            });
 
             $('#downloadSelected').click(function() {
                 var selectedQRCodes = $('input[name="selectedQRCodes[]"]:checked').map(function() {
