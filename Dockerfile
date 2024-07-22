@@ -1,6 +1,6 @@
 FROM php:8.3-fpm-bullseye
 
-WORKDIR /var/www
+WORKDIR /var/www/html
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -17,30 +17,59 @@ RUN apt-get update && apt-get install -y \
     curl \
     libzip-dev \
     libonig-dev \
+    imagemagick \
+    libmagickwand-dev \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
-    && docker-php-ext-enable pdo_mysql mbstring zip exif pcntl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl \
+    && docker-php-ext-enable pdo pdo_mysql mbstring zip exif pcntl \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-enable gd
 
+# Install imagick
+RUN cd /tmp \
+    && curl -O https://pecl.php.net/get/imagick-3.7.0.tgz \
+    && tar -xzf imagick-3.7.0.tgz \
+    && cd imagick-3.7.0 \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini
+
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.7.6 /usr/bin/composer /usr/bin/composer
 
-# Copy existing application directory contents
+# Install Node.js and npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Copy application files
 COPY . .
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www/storage \
-    && chmod -R 775 /var/www/bootstrap/cache
 
-RUN chown -R www-data:www-data /var/www/vendor \
-    && chmod -R 775 /var/www/vendor
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
+# Install PHP dependencies
 RUN composer install --no-dev --prefer-dist
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+RUN composer require maatwebsite/excel
+RUN composer require simplesoftwareio/simple-qrcode
+RUN composer require barryvdh/laravel-dompdf
+RUN composer require laravel/breeze --dev
+
+# Install NPM dependencies and build assets
+RUN npm install \
+    && npm run build
+
+# Run migrations
+# RUN php artisan migrate:fresh --seed
+
+# Create symbolic link for storage
+RUN php artisan storage:link
 
 # Change current user to www-data
 USER www-data
