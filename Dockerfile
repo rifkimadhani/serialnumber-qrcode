@@ -2,6 +2,8 @@ FROM php:8.3-fpm-bullseye
 
 WORKDIR /var/www/html
 
+# COPY ./php.ini /usr/local/etc/php/
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -19,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     imagemagick \
     libmagickwand-dev \
+    supervisor \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl \

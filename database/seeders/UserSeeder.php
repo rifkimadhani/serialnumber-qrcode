@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
                 'name' => 'Madeira Entertainz',
                 'username' => 'madeira',
                 'email' => 'rifkimadhani@madeiraresearch.com',
-                'password' => Hash::make('admin'), // Change this to a secure password
+                'password' => Hash::make('$qrCodes'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

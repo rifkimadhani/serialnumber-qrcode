@@ -26,6 +26,7 @@
 </head>
 <body>
     @foreach($qrCodes->chunk(25) as $chunk)
+    <div style="margin-top: 50px"></div>
         @foreach($chunk->chunk(5) as $row)
             <div class="row center">
                 @foreach($row as $qrCode)
