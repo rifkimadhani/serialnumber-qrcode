@@ -30,7 +30,7 @@ class GeneratePdfJob implements ShouldQueue
     public function handle(): void
     {
         $qrCodes = QrCode::all();
-        $pdf = PDF::loadView('qr_codes.pdf', compact('qrCodes'))->setPaper('a4', 'landscape');
+        $pdf = PDF::loadView('qr_codes.pdf', compact('qrCodes'))->setPaper('a3', 'portrait');
         $path = storage_path('storage/pdfs/' . $this->fileName);
         $pdf->save($path);
     }

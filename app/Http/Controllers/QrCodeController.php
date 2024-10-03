@@ -129,8 +129,9 @@ class QrCodeController extends Controller
         }
 
         $pdf = PDF::loadView('qr_codes.pdf', compact('qrCodes'));
+        $fileName = 'selected_qr-codes_' . date('Ymd_His') . '.pdf';
 
-        return $pdf->download('selected_qr_codes.pdf');
+        return $pdf->download($fileName);
     }
 
     public function downloadPdfByRange(Request $request)
@@ -156,9 +157,28 @@ class QrCodeController extends Controller
         return $pdf->download($fileName);
     }
 
+    // preview pdf file
+    public function previewPdf($startSerial, $endSerial){
+        $qrCodes = QrCode::whereBetween('serial_number', [$startSerial, $endSerial])->get();
+        return view('qr_codes.preview-pdf', compact('qrCodes'));
+    }
+
     public function delete(Request $request){
         $ids = $request->input('selectedQRCodes');
+
+        // Fetch the QR code file paths before deletion
+        $qrCodes = QrCode::whereIn('id', $ids)->get();
+
         QrCode::whereIn('id', $ids)->delete();
+
+        // Loop through each QR code and delete the corresponding file
+        foreach ($qrCodes as $qrCode) {
+            $filePath = public_path($qrCode->qr_code);
+
+            if (file_exists($filePath)) {
+                unlink($filePath); // Delete the file from the directory
+            }
+        }
 
         return redirect()->back()->with('success', 'Selected QR codes deleted successfully.');
     }
@@ -170,7 +190,19 @@ class QrCodeController extends Controller
             return response()->json(['success' => false, 'message' => 'No QR codes selected for deletion.']);
         }
 
+        // Fetch the QR code file paths before deletion
+        $qrCodes = QrCode::whereIn('id', $ids)->get();
+
         QrCode::whereIn('id', $ids)->delete();
+
+        // Loop through each QR code and delete the corresponding file
+        foreach ($qrCodes as $qrCode) {
+            $filePath = public_path($qrCode->qr_code);
+
+            if (file_exists($filePath)) {
+                unlink($filePath); // Delete the file from the directory
+            }
+        }
 
         return response()->json(['success' => true, 'message' => 'Selected QR codes deleted successfully.']);
     }
