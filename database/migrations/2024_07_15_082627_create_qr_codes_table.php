@@ -12,7 +12,7 @@ class CreateQrCodesTable extends Migration
             $table->id();
             $table->string('serial_number')->unique();
             $table->string('model_number');
-            $table->string('qr_code')->nullable();;
+            $table->string('qr_code')->nullable();
             $table->timestamps();
         });
     }

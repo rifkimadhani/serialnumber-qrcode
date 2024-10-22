@@ -17,6 +17,14 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserSeeder::class,
+            ClientsTableSeeder::class,
+            DevicesTableSeeder::class,
+            AppsTableSeeder::class,
+            // OperationsTableSeeder::class,
+            // ClientDevicesTableSeeder::class,
+            ClientAppsTableSeeder::class,
+            CategoriesTableSeeder::class,
+            ClientCategoriesTableSeeder::class,
         ]);
     }
 }
