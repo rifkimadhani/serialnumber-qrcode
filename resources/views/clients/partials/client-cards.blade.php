@@ -13,14 +13,15 @@ $itemsInLastRow = $totalClients % $columnsPerRow;
 $offsetClass = '';
 if ($index >= $totalClients - $itemsInLastRow) {
 if ($itemsInLastRow == 1 && $index == $totalClients - 1) {
-$offsetClass = 'offset-s4';
+$offsetClass = 'offset-l4';
 } elseif ($itemsInLastRow == 2 && $index == $totalClients - 2) {
-$offsetClass = 'offset-s2';
+$offsetClass = 'offset-l2';
 }
 }
 @endphp
 
-<div class="col s4 {{ $offsetClass }}">
+<!-- <div class="col s4 {{ $offsetClass }}"> -->
+<div class="col s12 m6 l4 {{ $offsetClass }}">
     <div class="card z-depth-2 hoverable" style="border-radius: 15px;">
         <div class="card-content" style="padding-bottom:0px; ">
             <a href="{{ route('clients.show', $c->id) }}" style="color:black;">

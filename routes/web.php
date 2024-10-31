@@ -6,6 +6,7 @@ use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\VisitorController;
 
 Route::get('/', [QrCodeController::class, 'index'])->middleware('auth');
 
@@ -44,7 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/clients/{clientId}/operations-update/{operationId}', [ClientController::class, 'updateOperation'])->name('operations.update');
     Route::delete('/clients/{clientId}/operations-delete/{operationId}', [ClientController::class, 'destroyOperation'])->name('operations.destroy');
     Route::post('/clients/{id}/apps', [ClientController::class, 'storeClientApp'])->name('clients.storeApp');
-
+    Route::delete('/clients/{clientId}/apps/{clientAppId}', [ClientController::class, 'deleteClientApp'])->name('clients.deleteApp');
+    // client's device serial number list
+    Route::get('/clients/{id}/device-sn', [ClientController::class, 'deviceSNData'])->name('clients.deviceSN.data');
 
     //apps
     Route::resource('/apps', AppController::class)->except(['show', 'update', 'destroy']);
@@ -53,7 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/apps/{id}/update', [AppController::class, 'update'])->name('apps.update');
     Route::delete('/apps/{id}/delete', [AppController::class, 'destroy'])->name('apps.destroy');
 
-    //apps
+    //devices
     Route::resource('/devices', DeviceController::class)->except(['show', 'update', 'destroy']);
     Route::get('/devices/data', [DeviceController::class, 'getDevicesData'])->name('devices.data');
     Route::post('/devices/store', [DeviceController::class, 'store'])->name('devices.store');
@@ -61,6 +64,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/devices/{id}/delete', [DeviceController::class, 'destroy'])->name('devices.destroy');
 
 
+    //visitor
+    // Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
 
 
 });

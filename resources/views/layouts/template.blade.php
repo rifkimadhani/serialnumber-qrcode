@@ -137,6 +137,27 @@
         clear: both;
     } */
 
+    /* table.data-sn>tbody {
+        display: block;
+        height: 50vh;
+        overflow: auto;
+    }
+
+    table.data-sn>thead,
+    table.data-sn>tbody table.data-sn>tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table.data-sn>thead {
+        width: 100%;
+    }
+
+    table.data-sn {
+        width: 100%;
+    } */
+
     /* *******END DATATABLE */
 
     /* **************SEARCH */
@@ -208,6 +229,10 @@
 
     .modal .select-wrapper input.select-dropdown {
         padding-top: 8px !important;
+    }
+
+    .modal.data-sn .select-wrapper input.select-dropdown {
+        padding-top: 0px !important;
     }
 
 
@@ -327,6 +352,29 @@
             font-size: 11px;
         }
 
+        .title-page {
+            font-size: small;
+        }
+
+    }
+
+    /* FOOTER */
+    .page-footer {
+        padding-top: 0px;
+        background-color: transparent;
+    }
+
+    .page-footer .footer-copyright {
+        color: #0C3E7A;
+        background-color: transparent;
+    }
+
+    .visitor {
+        color: #0C3E7A;
+    }
+
+    .visitor:hover {
+        color: #26a69a;
     }
     </style>
 </head>
@@ -358,6 +406,34 @@
     </div>
 
     @yield('content')
+
+    <footer class="page-footer">
+        <!-- <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">Footer Content</h5>
+                    <p class="grey-text text-lighten-4">You can use rows and columns here to organize your footer
+                        content.</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="white-text">Links</h5>
+                    <ul>
+                        <li><a class="grey-text text-lighten-3" href="#!">Link 1</a></li>
+                        <li><a class="grey-text text-lighten-3" href="#!">Link 2</a></li>
+                        <li><a class="grey-text text-lighten-3" href="#!">Link 3</a></li>
+                        <li><a class="grey-text text-lighten-3" href="#!">Link 4</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div> -->
+        <div class="footer-copyright">
+            <div style="margin-left: 5vw; width: 90vw;">
+                © 2024 Madeira Research
+                <!-- <a class="grey-text text-lighten-4 right" href="#!">Total Site Visits: {{ $visitorCount }}</a> -->
+                <a class="visitor right" href="#!">Total Site Visits: {{ $visitorCount }}</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
     $(document).ready(function() {
@@ -571,6 +647,8 @@
 
 
 </body>
+
+
 
 
 

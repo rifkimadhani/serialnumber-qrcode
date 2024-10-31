@@ -65,6 +65,12 @@
         <li>
             <a href="{{route('clients.index')}}" style="color: #0C3E7A;"><strong>Clients</strong></a>
         </li>
+        <li>
+            <a href="{{route('apps.index')}}" style="color: #0C3E7A;"><strong>Apps</strong></a>
+        </li>
+        <li>
+            <a href="{{route('devices.index')}}" style="color: #0C3E7A;"><strong>Devices</strong></a>
+        </li>
         <div class="divider"></div>
         <li class="center" style="margin-top: 8px;">
             <form method="POST" action="{{ route('logout') }}" id="logout-form">

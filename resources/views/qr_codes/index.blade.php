@@ -1,7 +1,7 @@
 <?//= ini_set('max_execution_time', 120); ?>
 @extends('layouts.template')
 
-@section('title', 'ME | Data Client')
+@section('title', 'ME | Device Serial Number')
 
 @section('content')
 <div style="margin: 5vh 5vw">
@@ -110,7 +110,7 @@
         {{-- DOWNLOAD & DELETE SELECTED --}}
         <div class="col s8" style="padding-right: 0">
             <div class="card z-depth-1" style="border-radius: 7px;">
-                <div class="card-content">
+                <div class="card-content" style="padding-bottom: 0px;">
                     <div class="card-title">
                         <div class="row" style="display: flex; justify-content: space-between; margin-right: .3em">
                             <div class="col s6" style="display: flex; justify-content: flex-start;">
@@ -143,26 +143,25 @@
 
                     <div class="divider"></div>
 
-                    <section class="section" style="padding-bottom: 1px">
-                        <!-- {{-- TABLE --}} -->
-                        <div class="row">
-                            <div class="col s12 l12">
-                                <table id="qrCodesTable" class="display striped responsive-table nowrap"
-                                    style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Select</th>
-                                            <th>Serial Number</th>
-                                            <th>Model Number</th>
-                                            <th>QR Code</th>
-                                            <th>Date</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                    <!-- <section class="section" style="padding-bottom: 1px"> -->
+                    <!-- {{-- TABLE --}} -->
+                    <div class="row" style="margin-bottom: 0px;">
+                        <div class="col s12 l12">
+                            <table id="qrCodesTable" class="display striped responsive-table" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Serial Number</th>
+                                        <th>Model Number</th>
+                                        <th>QR Code</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
-                    </section>
+                    </div>
+                    <!-- </section> -->
                 </div>
             </div>
         </div>
@@ -234,8 +233,14 @@ function updateButtonState() {
 $(document).ready(function() {
     var table = $('#qrCodesTable').DataTable({
         processing: true,
+        responsive: true,
+        autoWidth: false,
         serverSide: true,
-        pageLength: 500,
+        pageLength: -1,
+        lengthMenu: [
+            [10, 25, 50, 100, 150, -1],
+            [10, 25, 50, 100, 150, 'All']
+        ],
         order: [
             [1, 'asc']
         ],
@@ -295,6 +300,10 @@ $(document).ready(function() {
                 selectNone: 'Select none'
             }
         },
+        scrollY: '43vh', // Set height for the table body
+        scrollCollapse: true, // Allow shrinking of the table when not enough data
+        autoWidth: true, // Automatically adjust column widths
+        fixedHeader: true,
         drawCallback: function() {
             // Reinitialize materialboxed after the DataTable redraws
             $('.materialboxed').materialbox();

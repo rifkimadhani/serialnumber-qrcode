@@ -11,9 +11,8 @@ use App\Models\Operation;
 use App\Models\App;
 use App\Models\Category;
 use App\Models\ClientCategory;
-
-
-
+use App\Models\QrCode;
+use COM;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientController extends Controller
@@ -35,31 +34,11 @@ class ClientController extends Controller
         $apps = App::all();
         $category = Category::all();
 
+        $snData = QrCode::where('client_id', $id )->get();
+
         // Return a view to display the client's details
-        return view('clients.show', compact('client', 'device', 'apps', 'category'));
+        return view('clients.show', compact('client', 'device', 'apps', 'category', 'snData'));
     }
-
-    // Fetch client data
-    // public function getClientsData()
-    // {
-    //     $clients = Client::select(['id', 'name', 'address', 'device_type', 'total_devices', 'web_app_version', 'mobile_app_version', 'notes']);
-
-    //     return DataTables::of($clients)
-    //         ->addColumn('action', function ($client) {
-    //             return '
-    //                 <form action="'.route('clients.destroy', $client->id).'" method="POST" style="display:inline;">
-    //                     '.csrf_field().'
-    //                     '.method_field('DELETE').'
-    //                     <a href="#!" class="waves-effect waves-light btn-flat edit-client" data-id="'.$client->id.'" data-name="'.$client->name.'" data-address="'.$client->address.'" data-device_type="'.$client->device_type.'" data-total_devices="'.$client->total_devices.'" data-web_app_version="'.$client->web_app_version.'" data-mobile_app_version="'.$client->mobile_app_version.'" data-notes="'.$client->notes.'"><i class="material-icons" style="font-size: 20px">edit</i></a>
-    //                     <button type="submit" class="waves-effect waves-teal btn-flat" style="color: #FF595E;">
-    //                         <i class="material-icons" style="font-size: 20px">delete</i>
-    //                     </button>
-    //                 </form>
-    //             ';
-    //         })
-    //         ->rawColumns(['action'])
-    //         ->make(true);
-    // }
 
     // fetch data by AJAX search
     public function search(Request $request)
@@ -167,6 +146,23 @@ class ClientController extends Controller
         return response()->json(['success' => 'Client deleted successfully.']);
     }
 
+    // device serial number data
+    public function deviceSNData($clientId){
+        $deviceSN = QrCode::where('client_id', $clientId )->get();
+
+        return DataTables::of($deviceSN)
+            ->addIndexColumn()
+            ->addColumn('qr_code', function ($qrCode) {
+                if ($qrCode->qr_code) {
+                    return '<img loading="lazy" src="'.asset($qrCode->qr_code).'">';
+                } else {
+                    return '<span>QR Code not found.</span>';
+                }
+            })
+            ->rawColumns(['qr_code'])
+            ->make(true);
+    }
+
 
     // operation
     public function operationsData($clientId)
@@ -176,8 +172,8 @@ class ClientController extends Controller
         return DataTables::of($operations)
             ->addColumn('actions', function ($operation) {
                 return '
-                    <a href="#" class="waves-effect waves-teal btn-flat edit-operation" data-id="' . $operation->id . '" data-type="' . $operation->type . '" data-device_id="' . $operation->device_id . '" data-device_total="' . $operation->device_total . '" data-date="' . $operation->date . '"><i class="material-icons" style="font-size: 20px">edit</i></a>
-                    <a href="#" class="waves-effect waves-red btn-flat delete-operation" data-id="' . $operation->id . '"><i class="material-icons" style="font-size: 20px;color: #FF595E;">delete</i></a>
+                    <a href="#" class="waves-effect waves-teal btn-flat edit-operation" data-id="' . $operation->id . '" data-type="' . $operation->type . '" data-device_id="' . $operation->device_id . '" data-device_total="' . $operation->device_total . '" data-date="' . $operation->date . '" style="padding:0 3px;"><i class="material-icons" style="font-size: 20px">edit</i></a>
+                    <a href="#" class="waves-effect waves-red btn-flat delete-operation" data-id="' . $operation->id . '" style="padding:0 3px;"><i class="material-icons" style="font-size: 20px;color: #FF595E;">delete</i></a>
                 ';
             })
             ->rawColumns(['actions'])
@@ -212,6 +208,10 @@ class ClientController extends Controller
             ]);
         }
 
+        // Remove devices if total = 0
+        $client = Client::findOrFail($clientId);
+        $client->removeUnusedDevices();
+
         return response()->json(['success' => 'Operation added successfully.']);
     }
 
@@ -224,23 +224,49 @@ class ClientController extends Controller
             'date' => 'required|date',
         ]);
 
-        // update operations table
+        // Fetch the current Operation record
         $operation = Operation::where('client_id', $clientId)->findOrFail($operationId);
-        $operation->update($request->all());
 
-        // check client_devices table
-        $clientDeviceExists = ClientDevice::where('client_id', $clientId)
-                                        ->where('device_id', $request->device_id)
+        // Check if device_id has changed
+        $oldDeviceId = $operation->device_id;
+        $newDeviceId = $request->device_id;
+
+        // Update the Operation record
+        $operation->update([
+            'type' => $request->type,
+            'device_id' => $newDeviceId,
+            'device_total' => $request->device_total,
+            'date' => $request->date,
+        ]);
+
+        // Update ClientDevice if device_id has changed
+        if ($oldDeviceId != $newDeviceId) {
+            // Remove the old ClientDevice entry if no other operations use it
+            $operationExists = Operation::where('client_id', $clientId)
+                                        ->where('device_id', $oldDeviceId)
                                         ->exists();
-        if (!$clientDeviceExists) {
-            ClientDevice::create([
+
+            if (!$operationExists) {
+                ClientDevice::where('client_id', $clientId)
+                            ->where('device_id', $oldDeviceId)
+                            ->delete();
+            }
+
+            // Add or update the ClientDevice entry for the new device_id
+            $clientDevice = ClientDevice::firstOrCreate([
                 'client_id' => $clientId,
-                'device_id' => $request->device_id,
+                'device_id' => $newDeviceId,
             ]);
         }
 
+        // Remove devices if total = 0
+        $client = Client::findOrFail($clientId);
+        $client->removeUnusedDevices();
+
         return response()->json(['success' => 'Operation updated successfully.']);
     }
+
+
 
     public function destroyOperation($clientId, $operationId)
     {
@@ -259,6 +285,10 @@ class ClientController extends Controller
                         ->where('device_id', $deviceId)
                         ->delete();
         }
+
+        // Remove devices if total = 0
+        $client = Client::findOrFail($clientId);
+        $client->removeUnusedDevices();
 
         return response()->json(['success' => 'Operation deleted successfully.']);
     }
@@ -286,6 +316,25 @@ class ClientController extends Controller
 
         return response()->json(['error' => 'App is already added to this client.'], 400);
     }
+
+    public function deleteClientApp($clientId, $clientAppId)
+    {
+        // Find the ClientApp entry based on client_id and app_id
+        $clientApp = ClientApp::where('client_id', $clientId)
+                              ->where('app_id', $clientAppId)
+                              ->first();
+
+        // Check if the ClientApp entry exists
+        if (!$clientApp) {
+            return response()->json(['success' => false, 'message' => 'App not found.'], 404);
+        }
+
+        // Delete the ClientApp entry
+        $clientApp->delete();
+
+        return response()->json(['success' => true, 'message' => 'App deleted successfully.']);
+    }
+
 
 
 }

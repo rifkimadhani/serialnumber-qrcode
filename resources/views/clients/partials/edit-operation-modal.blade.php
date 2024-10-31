@@ -26,7 +26,7 @@
                 <select id="edit_device_id" name="device_id" required>
                     <option value="" disabled>Select Device</option>
                     @foreach($device as $d)
-                    <option value="{{ $d->id }}">{{ $d->name }}</option>
+                    <option value="{{ $d->id }}">{{ $d->name }} ({{ $d->model }})</option>
                     @endforeach
                 </select>
                 <label for="edit_device_id" style="padding-top: 8px;">Device</label>

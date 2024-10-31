@@ -11,8 +11,8 @@
                 <!-- <div class="card-title" style="margin-bottom: 0px;"> -->
 
                 <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 0px">
-                    <div class="col s6"
-                        style="display: flex; justify-content: flex-start; align-items:center; font-size: xx-large;">
+                    <div class="col s6 title-page"
+                        style="display: flex; justify-content: flex-start; align-items:center; font-size: x-large;">
                         <strong>Client List</strong>
                     </div>
 
@@ -37,7 +37,7 @@
             <div class="card z-depth-2" style="border-radius: 7px;">
                 <div class="card-content" style="padding-top: 0px;">
                     <div class="row" style="display: flex; align-items: center; margin-bottom: 0px">
-                        <div class="col s3" style="margin: 1vh 1vw; border-radius:7px;">
+                        <div class="col m3 s12" style="margin: 1vh 1vw; border-radius:7px;">
                             <div class="input-field sort">
                                 <select id="sort-clients">
                                     <option value="name" selected>Sort By Name</option>
@@ -49,7 +49,7 @@
                             </div>
                         </div>
 
-                        <div class="col s3 offset-s6">
+                        <div class="col s9">
                             <div style="margin-right:.3em; display: flex; justify-content: flex-end;">
                                 <button class="btn waves-effect waves-light hoverable modal-trigger"
                                     style="background-color: #0C3E7A;font-size: 11px; align-items: center;margin-top:10px"

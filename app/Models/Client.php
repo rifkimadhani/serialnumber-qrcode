@@ -64,11 +64,11 @@ class Client extends Model
     {
         // fetch all operations grouped by device_id
         $deviceTotals = $this->operations()
-                             ->selectRaw('device_id,
-                                          SUM(CASE WHEN type = "deliver" THEN device_total ELSE 0 END) as total_delivered,
-                                          SUM(CASE WHEN type = "returns" THEN device_total ELSE 0 END) as total_returned')
-                             ->groupBy('device_id')
-                             ->get();
+                            ->selectRaw('device_id,
+                                        SUM(CASE WHEN type = "deliver" THEN device_total ELSE 0 END) as total_delivered,
+                                        SUM(CASE WHEN type = "returns" THEN device_total ELSE 0 END) as total_returned')
+                            ->groupBy('device_id')
+                            ->get();
 
         $deviceSummary = [];
 
@@ -81,13 +81,14 @@ class Client extends Model
             // net total
             $netTotal = $totalDelivered - $totalReturned;
 
-            // avoid negative totals
-            // $deviceSummary[$device->name] = max($netTotal, 0);
-            $deviceSummary[$device->id] = [
-                'name' => $device->name,
-                'model' => $device->model,
-                'total' => max($netTotal, 0)
-            ];
+            // Include only devices with a positive total
+            if ($netTotal > 0) {
+                $deviceSummary[$device->id] = [
+                    'name' => $device->name,
+                    'model' => $device->model,
+                    'total' => $netTotal
+                ];
+            }
         }
 
         return $deviceSummary;
@@ -110,5 +111,20 @@ class Client extends Model
         } else {
             return strval($total);
         }
+    }
+
+    // remove related data in client_devices if total is zero
+    public function removeUnusedDevices()
+    {
+        // Get a list of active device IDs (those with total > 0)
+        $deviceSummary = $this->totalDevicesPerDevice();
+        $activeDeviceIds = array_keys($deviceSummary);
+
+        // Delete entries in client_devices where device_id is not in the list of active devices
+        \DB::table('client_devices')
+            ->where('client_id', $this->id)
+            ->whereNotIn('device_id', $activeDeviceIds)
+            ->delete();
+
     }
 }

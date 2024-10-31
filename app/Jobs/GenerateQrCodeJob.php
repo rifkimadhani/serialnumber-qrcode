@@ -43,7 +43,7 @@ class GenerateQrCodeJob implements ShouldQueue
         // Generate QR code
         QRCodeGenerator::format('png')
             ->size(500)
-            ->generate("QUOKKA BOX\n\nSerial Number:\n$serialNumber\n==============\nModel Number:\n$modelNumber\n==============", public_path($qrCodePath));
+            ->generate("QUOKKA BOX\n\nSerial Number:\n$serialNumber\n\nModel Number:\n$modelNumber", public_path($qrCodePath));
 
         // Update the QR code path in the database
         $this->qrCode->update(['qr_code' => $qrCodePath]);

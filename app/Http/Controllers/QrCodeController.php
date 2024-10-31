@@ -23,7 +23,7 @@ class QrCodeController extends Controller
     // show data
     public function getQrCodesData()
     {
-        $qrCodes = QrCode::select(['id', 'serial_number', 'model_number', 'qr_code', 'updated_at']);
+        $qrCodes = QrCode::select(['id', 'client_id', 'device_id', 'serial_number', 'model_number', 'qr_code',  'updated_at']);
 
         return DataTables::of($qrCodes)
             ->addColumn('select', function ($qrCode) {
